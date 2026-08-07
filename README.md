@@ -65,7 +65,7 @@ This document is intended for the project author, technical reviewers, and any c
 
 ## Executive Summary
 
-BeautyGPT is a cross-platform mobile application that unifies skincare, makeup, hair care, and fashion guidance inside a single AI-powered assistant. Rather than presenting static articles or generic product catalogs, BeautyGPT engages the user in natural conversation, grounds every answer in a curated knowledge base through Retrieval-Augmented Generation (RAG), and can act on the user's behalf — creating routines, building shopping lists, and saving favorites — through Function Calling.
+BeautyGPT is a cross-platform mobile application that unifies skincare, makeup, hair care, and fashion guidance inside a single AI-powered assistant. Rather than presenting static articles or generic product catalogs, BeautyGPT engages the user in natural conversation, grounds every answer in a curated knowledge base through Retrieval-Augmented Generation (RAG), and can act on the user's behalf — creating routines and building shopping lists — through Function Calling.
 
 The application is built on a modern, production-representative stack: **React Native with Expo** on the client, **Node.js/Express with PostgreSQL** on the server, **pgvector** for semantic search, and the **OpenAI API** as the underlying language model provider. The AI layer is designed with explicit safety boundaries: it operates only within the beauty and personal-care domain, cites the information it retrieves, requests confirmation before irreversible actions, and is protected against prompt injection and hallucination through architectural controls rather than trust alone.
 
@@ -79,7 +79,7 @@ This document specifies the complete scope of the project: the problem it addres
 
 BeautyGPT is an AI-powered mobile application that consolidates four traditionally separate domains — **skincare, makeup, hair care, and fashion** — into a single intelligent assistant. The application is designed to help users make informed, personalized beauty decisions based on structured, trustworthy information rather than fragmented and often contradictory advice sourced from social media.
 
-At the core of BeautyGPT is a conversational AI agent that is a genuine, functional part of the application rather than a cosmetic chatbot layered on top. The agent answers user questions using **Retrieval-Augmented Generation (RAG)** — grounding its responses in a curated knowledge base of skincare science, ingredient data, and product information — and performs concrete business actions inside the app using **Function Calling**, such as generating a skincare routine, saving a product to favorites, or building a shopping list. All AI responses are **streamed progressively** to the mobile client, so that users see the assistant "thinking and typing" in real time rather than waiting for a complete response.
+At the core of BeautyGPT is a conversational AI agent that is a genuine, functional part of the application rather than a cosmetic chatbot layered on top. The agent answers user questions using **Retrieval-Augmented Generation (RAG)** — grounding its responses in a curated knowledge base of skincare science, ingredient data, and product information — and performs concrete business actions inside the app using **Function Calling**, such as generating a skincare routine or building a shopping list. All AI responses are **streamed progressively** to the mobile client, so that users see the assistant "thinking and typing" in real time rather than waiting for a complete response.
 
 ### 1.2 Vision Statement
 
@@ -91,7 +91,7 @@ To become the trusted, always-available beauty advisor that replaces guesswork a
 |---|---|---|
 | OBJ-01 | Unify beauty domains | Combine skincare, makeup, hair care, and fashion guidance in one coherent product experience |
 | OBJ-02 | Ground AI answers in evidence | Use RAG so that AI responses are traceable to a curated knowledge base rather than the model's unverified memory |
-| OBJ-03 | Make the AI agent actionable | Allow the assistant to perform real application actions (create routines, manage lists, save favorites) via Function Calling |
+| OBJ-03 | Make the AI agent actionable | Allow the assistant to perform real application actions (create routines, manage shopping lists) via Function Calling |
 | OBJ-04 | Personalize at the individual level | Tailor recommendations to each user's skin type, hair type, sensitivities, and preferences |
 | OBJ-05 | Deliver a responsive experience | Stream AI responses token-by-token so the interface feels immediate and alive |
 | OBJ-06 | Build with production-representative engineering practices | Apply authentication, validation, layered architecture, testing, and documentation standards consistent with real-world software products |
@@ -101,7 +101,7 @@ To become the trusted, always-available beauty advisor that replaces guesswork a
 
 #### 1.4.1 In Scope
 
-- A mobile application (iOS and Android via Expo) covering authentication, user/skin/hair profiles, AI chat, routine generation, shopping lists, favorites, outfit and makeup suggestions, product search, weather-based advice, and notifications.
+- A mobile application (iOS and Android via Expo) covering authentication, user/skin/hair profiles, AI chat, routine generation, shopping lists, outfit and makeup suggestions, product search, and weather-based advice.
 - A REST API backend with a relational database, a vector store for semantic search, and an AI service layer implementing RAG, Function Calling, and MCP-based tool access.
 - A curated beauty knowledge base (skincare science, ingredient interactions, routine principles) used as the retrieval source for the AI agent.
 - Full technical documentation: this specification, API documentation (Swagger/OpenAPI), a database schema, and Docker-based deployment configuration.
@@ -118,7 +118,7 @@ To become the trusted, always-available beauty advisor that replaces guesswork a
 | Differentiator | Explanation |
 |---|---|
 | **Grounded, not generic, AI** | Answers are retrieved from a curated knowledge base rather than generated purely from the model's parametric memory, reducing the risk of unsafe or fabricated advice |
-| **Action-capable assistant** | The AI does not just talk — it calls real backend functions to create routines, manage shopping lists, and save favorites |
+| **Action-capable assistant** | The AI does not just talk — it calls real backend functions to create routines and manage shopping lists |
 | **Cross-domain in one app** | Skincare, makeup, hair, and fashion are unified instead of scattered across separate apps |
 | **Context-aware advice** | Weather-based beauty recommendations via MCP tool integration adapt guidance to real, current conditions |
 | **Transparency and safety by design** | The agent's role, allowed actions, and limitations are explicitly specified and enforced (see Section 5) |
@@ -182,7 +182,7 @@ BeautyGPT addresses these problems by combining:
 
 1. A **curated, structured knowledge base** (rather than open social media content) as the grounding source for AI answers.
 2. A **conversational interface** that can ask clarifying questions and adapt to the individual's skin type, hair type, sensitivities, and goals.
-3. **Function Calling** so that advice does not stop at text — the assistant can generate a routine, build a shopping list, or save a favorite directly.
+3. **Function Calling** so that advice does not stop at text — the assistant can generate a routine or build a shopping list directly.
 4. **Context-awareness** (e.g., current weather) so recommendations reflect real, current conditions rather than static content.
 5. Explicit **safety guardrails** that keep the assistant within its domain and prevent it from acting outside clearly defined, user-confirmed boundaries.
 
@@ -202,12 +202,10 @@ flowchart LR
         UC3[Chat with AI Assistant]
         UC4[Generate Routine]
         UC5[Manage Shopping List]
-        UC6[Save Favorites]
         UC7[Get Outfit Suggestions]
         UC8[Get Makeup Recommendations]
         UC9[Search Products]
         UC10[Receive Weather-Based Advice]
-        UC11[Manage Notifications]
     end
 
     U --> UC1
@@ -215,12 +213,10 @@ flowchart LR
     U --> UC3
     U --> UC4
     U --> UC5
-    U --> UC6
     U --> UC7
     U --> UC8
     U --> UC9
     U --> UC10
-    U --> UC11
 
     UC3 -.includes.-> UC4
     UC3 -.includes.-> UC7
@@ -286,39 +282,27 @@ Routines are generated by the AI agent through the `createRoutine()` function (S
 
 Allows users to compile products recommended during conversations (or added manually) into a shopping list, organized by category, which they can reference while shopping in-store or online. The AI agent can populate a shopping list directly via `createShoppingList()`.
 
-### 4.10 Favorite Products — *Should-have*
-
-Enables users to bookmark specific products for quick future reference, independent of any single routine or conversation.
-
-### 4.11 Favorite Routines — *Should-have*
-
-Enables users to bookmark full routines (their own or AI-generated) so they can be reused or reactivated without regenerating them from scratch.
-
-### 4.12 Outfit Suggestions — *Should-have*
+### 4.10 Outfit Suggestions — *Should-have*
 
 Extends BeautyGPT into the fashion domain: given an occasion, weather, or stated style preference, the assistant proposes outfit directions (not a virtual try-on) consistent with the user's stated preferences, generated via `generateOutfit()`.
 
-### 4.13 Makeup Recommendations — *Should-have*
+### 4.11 Makeup Recommendations — *Should-have*
 
 Provides makeup guidance tailored to skin type, occasion, and stated style — for example, recommending long-wear formulas for oily skin or hydrating formulas for dry skin — generated via `recommendMakeup()`.
 
-### 4.14 Search Products — *Must-have*
+### 4.12 Search Products — *Must-have*
 
 Allows users to search the curated product catalog directly (outside of a conversation) by name, category, ingredient, or brand, using the same underlying `searchProducts()` capability the AI agent uses internally.
 
-### 4.15 Weather-Based Beauty Advice — *Should-have*
+### 4.13 Weather-Based Beauty Advice — *Should-have*
 
 Integrates live weather data (via the MCP Weather tool, Section 8) to adapt recommendations to real conditions — for example, recommending a lighter moisturizer and reinforcing SPF guidance on a high-UV day, or recommending a richer moisturizer in low-humidity conditions.
 
-### 4.16 Notifications — *Should-have*
+### 4.14 Settings — *Must-have*
 
-Sends reminders and updates: routine reminders (morning/night), restock reminders for shopping-list items, and system notifications (e.g., new AI capabilities). Delivered via push notification with an in-app notification center.
+Account and application configuration: profile editing, password change, language selection (English/French), theme selection (Dark/Light/System), and account deletion.
 
-### 4.17 Settings — *Must-have*
-
-Account and application configuration: profile editing, password change, language selection (English/French), theme selection (Dark/Light/System), notification preferences, and account deletion.
-
-### 4.18 Feature Priority Summary
+### 4.15 Feature Priority Summary
 
 | # | Feature | Priority |
 |---|---|---|
@@ -331,14 +315,11 @@ Account and application configuration: profile editing, password change, languag
 | 7 | Conversation History | Must-have |
 | 8 | Routine Generator (Morning/Night) | Must-have |
 | 9 | Shopping List | Should-have |
-| 10 | Favorite Products | Should-have |
-| 11 | Favorite Routines | Should-have |
-| 12 | Outfit Suggestions | Should-have |
-| 13 | Makeup Recommendations | Should-have |
-| 14 | Search Products | Must-have |
-| 15 | Weather-Based Beauty Advice | Should-have |
-| 16 | Notifications | Should-have |
-| 17 | Settings | Must-have |
+| 10 | Outfit Suggestions | Should-have |
+| 11 | Makeup Recommendations | Should-have |
+| 12 | Search Products | Must-have |
+| 13 | Weather-Based Beauty Advice | Should-have |
+| 14 | Settings | Must-have |
 
 ## 5. AI Agent
 
@@ -352,21 +333,20 @@ The BeautyGPT AI Agent is a **domain-scoped conversational assistant** whose sol
 |---|---|
 | Answer domain questions | Respond to skincare, makeup, hair, and fashion questions, grounded in retrieved knowledge (Section 6) |
 | Personalize using profile data | Incorporate the user's skin profile, hair profile, and preferences into every relevant response |
-| Perform business actions | Invoke backend functions to create/update routines, shopping lists, and favorites on the user's behalf (Section 7) |
+| Perform business actions | Invoke backend functions to create/update routines and shopping lists on the user's behalf (Section 7) |
 | Maintain conversational context | Track the ongoing conversation so follow-up questions do not require the user to repeat themselves |
 | Flag risk | Proactively warn users about known unsafe ingredient combinations or unsuitability for their stated sensitivities |
 | Defer appropriately | Recognize the limits of its role and direct users to a qualified professional when appropriate (Section 5.8) |
 
 ### 5.3 Allowed Actions
 
-The agent is permitted to take the following actions, all of which map to specific, auditable backend functions:
+The agent is permitted to take the following actions, all of which map to specific, traceable backend functions:
 
 | Allowed Action | Mechanism |
 |---|---|
 | Retrieve knowledge base content relevant to a user's question | RAG similarity search (read-only) |
 | Create, update, or delete a routine on the user's request | `createRoutine()`, `updateRoutine()`, `deleteRoutine()` |
 | Create or modify a shopping list | `createShoppingList()` |
-| Save an item to favorites | `saveFavorite()` |
 | Generate outfit or makeup suggestions | `generateOutfit()`, `recommendMakeup()` |
 | Search the product catalog | `searchProducts()` |
 | Retrieve current weather to contextualize advice | MCP Weather tool (Section 8) |
@@ -401,7 +381,7 @@ In addition, the agent must **never**:
 
 ### 5.6 Confirmation Before Sensitive Actions
 
-Actions that modify or remove user data are **never executed silently**. Before calling a mutating function such as `deleteRoutine()`, removing a favorite, or overwriting an existing shopping list, the agent must restate the intended action in natural language and obtain explicit user confirmation within the conversation before the function is invoked. Read-only actions (searching products, retrieving a routine) do not require confirmation.
+Actions that modify or remove user data are **never executed silently**. Before calling a mutating function such as `deleteRoutine()` or overwriting an existing shopping list, the agent must restate the intended action in natural language and obtain explicit user confirmation within the conversation before the function is invoked. Read-only actions (searching products, retrieving a routine) do not require confirmation.
 
 ### 5.7 Sources of Information
 
@@ -552,7 +532,6 @@ Function Calling allows the AI agent to move beyond text generation and perform 
 | `updateRoutine()` | Modifies an existing routine (e.g., swaps a step or product) | "Replace the moisturizer in my routine" | `routineId`, `changes` | No |
 | `deleteRoutine()` | Permanently removes a routine | "Delete my old morning routine" | `routineId` | **Yes** |
 | `createShoppingList()` | Creates or updates a shopping list from recommended products | "Add these to my shopping list" | `items[]`, `listName` | No |
-| `saveFavorite()` | Bookmarks a product or routine as a favorite | "Save this to favorites" | `itemType`, `itemId` | No |
 | `generateOutfit()` | Produces an outfit suggestion for an occasion or weather condition | "What should I wear today?" | `occasion`, `weather`, `stylePreference` | No |
 | `recommendMakeup()` | Produces makeup recommendations suited to skin type and occasion | "Suggest makeup for a wedding" | `occasion`, `skinType` | No |
 | `searchProducts()` | Searches the product catalog by name, category, or ingredient | "Find a fragrance-free sunscreen" | `query`, `category`, `filters` | No |
@@ -588,7 +567,7 @@ BeautyGPT's AI agent communicates with external, real-world tools through the **
 | Standardized integration | External tools are exposed through a consistent interface, reducing custom glue code per provider |
 | Decoupling | The AI agent's core logic does not need to know the implementation details of each external service |
 | Extensibility | New tools (e.g., a future e-commerce or loyalty integration) can be added as additional MCP servers without restructuring the AI service |
-| Auditability | Tool calls made through MCP are logged the same way as internal function calls, preserving a consistent audit trail |
+| Consistency | Tool calls made through MCP are logged the same way as internal function calls, using the same tracing mechanism |
 
 ### 8.3 Integrated MCP Tools
 
@@ -645,12 +624,9 @@ BeautyGPT uses **PostgreSQL** as its primary relational data store. PostgreSQL w
 | **Routines** | A named, typed (morning/night) collection of steps for a user |
 | **RoutineSteps** | Individual ordered steps within a routine, each referencing a product |
 | **ShoppingLists** | User-created lists of products to purchase |
-| **Favorites** | Polymorphic bookmark linking a user to a favorited product or routine |
 | **Conversations** | A chat session between a user and the AI agent |
 | **Messages** | Individual turns (user or assistant) within a conversation |
 | **Embeddings** | Vector representations of knowledge-base chunks (and optionally messages) used for RAG |
-| **Notifications** | Reminders and system messages delivered to a user |
-| **AuditLogs** | Immutable record of sensitive actions (especially AI-initiated function calls) for traceability |
 
 ### 9.3 Entity Details
 
@@ -666,22 +642,18 @@ BeautyGPT uses **PostgreSQL** as its primary relational data store. PostgreSQL w
 | Routines | id (PK), userId (FK), type (morning/night), name, createdAt |
 | RoutineSteps | id (PK), routineId (FK), stepOrder, instruction, productId (FK, nullable) |
 | ShoppingLists | id (PK), userId (FK), name, createdAt |
-| Favorites | id (PK), userId (FK), itemType (product/routine), itemId |
 | Conversations | id (PK), userId (FK), title, startedAt, updatedAt |
 | Messages | id (PK), conversationId (FK), role (user/assistant), content, createdAt |
 | Embeddings | id (PK), sourceType (knowledgeChunk/message), sourceId, embedding (vector), createdAt |
-| Notifications | id (PK), userId (FK), title, body, isRead, createdAt |
-| AuditLogs | id (PK), userId (FK), action, targetEntity, targetId, createdAt |
 
 ### 9.4 Relationships
 
 - A **User** has exactly one **Profile**, at most one **SkinProfile**, and at most one **HairProfile** (1:1).
-- A **User** has many **Routines**, **Conversations**, **ShoppingLists**, **Favorites**, and **Notifications** (1:N).
+- A **User** has many **Routines**, **Conversations**, and **ShoppingLists** (1:N).
 - A **Routine** has many **RoutineSteps**, each of which optionally references one **Product** (1:N, then N:1).
 - A **Product** belongs to one **Category** and may relate to many **Ingredients** (N:1, then N:N through a join table).
 - A **Conversation** has many **Messages** (1:N).
 - An **Embedding** references either a knowledge-base chunk or (optionally) a **Message**, enabling both static knowledge retrieval and, in future iterations, semantic search over past conversations.
-- Every AI-initiated mutating action (routine creation/deletion, shopping list changes) is recorded in **AuditLogs**, referencing the acting user and the affected entity.
 
 ### 9.5 Entity-Relationship Diagram
 
@@ -693,9 +665,6 @@ erDiagram
     USERS ||--o{ ROUTINES : creates
     USERS ||--o{ CONVERSATIONS : starts
     USERS ||--o{ SHOPPING_LISTS : owns
-    USERS ||--o{ FAVORITES : saves
-    USERS ||--o{ NOTIFICATIONS : receives
-    USERS ||--o{ AUDIT_LOGS : generates
 
     ROUTINES ||--o{ ROUTINE_STEPS : contains
     ROUTINE_STEPS }o--o| PRODUCTS : references
@@ -773,24 +742,6 @@ erDiagram
         uuid userId FK
         string name
     }
-    FAVORITES {
-        uuid id PK
-        uuid userId FK
-        string itemType
-        uuid itemId
-    }
-    NOTIFICATIONS {
-        uuid id PK
-        uuid userId FK
-        string title
-        boolean isRead
-    }
-    AUDIT_LOGS {
-        uuid id PK
-        uuid userId FK
-        string action
-        datetime createdAt
-    }
 ```
 
 ### 9.6 Domain Class Diagram
@@ -859,12 +810,6 @@ classDiagram
         +string name
         +addItem()
     }
-    class Favorite {
-        +UUID id
-        +string itemType
-        +UUID itemId
-    }
-
     User "1" --> "1" SkinProfile
     User "1" --> "1" HairProfile
     User "1" --> "0..*" Routine
@@ -874,7 +819,6 @@ classDiagram
     User "1" --> "0..*" Conversation
     Conversation "1" --> "0..*" Message
     User "1" --> "0..*" ShoppingList
-    User "1" --> "0..*" Favorite
 ```
 
 ---
@@ -946,7 +890,7 @@ A centralized Express error-handling middleware catches errors from any layer an
 
 ### 11.7 Logging
 
-Structured logging (e.g., via a library such as `winston` or `pino`) records request metadata, errors, and — per the audit requirements in Section 9 — AI-initiated function calls, supporting both debugging and traceability.
+Structured logging (e.g., via a library such as `winston` or `pino`) records request metadata, errors, and AI-initiated function calls, supporting both debugging and traceability.
 
 ### 11.8 API Documentation
 
@@ -1027,7 +971,7 @@ The application supports both **Dark** and **Light** themes, plus a "System" opt
 
 ### 12.10 Offline Cache
 
-Frequently accessed, low-volatility data — the user's profile, saved routines, and favorites — is cached locally so the app remains browsable without connectivity; AI chat and live search naturally require an active connection and degrade gracefully with a clear offline indicator when unavailable.
+Frequently accessed, low-volatility data — the user's profile and saved routines — is cached locally so the app remains browsable without connectivity; AI chat and live search naturally require an active connection and degrade gracefully with a clear offline indicator when unavailable.
 
 ## 13. Application Flow
 
@@ -1036,11 +980,11 @@ Frequently accessed, low-volatility data — the user's profile, saved routines,
 1. **Account creation** — the user downloads the app and registers with full name, email, and password (Section 4.1).
 2. **Onboarding questionnaire** — immediately after registration, the user is guided through a short questionnaire establishing their initial Skin Profile and Hair Profile (Sections 4.3, 4.4).
 3. **Beauty preferences** — the user optionally sets style, budget, and brand preferences (Section 4.5).
-4. **Home dashboard** — the user lands on a home screen summarizing their profile, quick actions (Chat, Routines, Search), and any active notifications.
+4. **Home dashboard** — the user lands on a home screen summarizing their profile and quick actions (Chat, Routines, Search).
 5. **Interacting with the AI** — the user opens Chat and asks a question or requests an action (e.g., "build me a night routine for oily skin").
 6. **Grounded, streamed response** — the assistant retrieves relevant knowledge (RAG), optionally calls a function (e.g., `createRoutine()`), and streams its response back progressively.
-7. **Taking action on the recommendation** — the user saves the generated routine, adds recommended products to a shopping list, or bookmarks a favorite.
-8. **Ongoing engagement** — the user receives routine reminders and weather-based advice notifications, returns to Conversation History to revisit past guidance, and refines their profile over time as their skin or preferences change.
+7. **Taking action on the recommendation** — the user saves the generated routine or adds recommended products to a shopping list.
+8. **Ongoing engagement** — the user returns to Conversation History to revisit past guidance and refines their skin and hair profile over time as their needs or preferences change.
 
 ### 13.2 Application Flow Diagram
 
@@ -1059,9 +1003,8 @@ flowchart TD
 
     H --> K[RAG Retrieval + Function Calling]
     K --> L[Streamed, Personalized Recommendation]
-    L --> M[Save Routine / Add to Shopping List / Favorite]
-    M --> N[Notifications & Reminders]
-    N --> G
+    L --> M[Save Routine / Add to Shopping List]
+    M --> G
 ```
 
 ### 13.3 Sequence Diagram — Registration to First Recommendation
@@ -1156,7 +1099,7 @@ flowchart TD
 | Mobile Client | Renders UI, manages local state (Zustand), securely stores tokens, consumes SSE streams |
 | REST API Layer | Entry point for all client requests; routes to controllers |
 | Authentication | Validates JWT access tokens on protected routes; issues/refreshes tokens |
-| Controllers / Services | Implement business logic for profiles, routines, shopping lists, favorites, notifications |
+| Controllers / Services | Implement business logic for profiles, routines, and shopping lists |
 | AI Service Layer | Orchestrates RAG retrieval, prompt assembly, OpenAI API calls, and function-call dispatch |
 | Function Handler | Executes validated function calls against the database on the AI agent's behalf |
 | MCP Client | Bridges the AI Service to external tools (Weather, Calendar, Maps) via MCP |
@@ -1221,7 +1164,7 @@ backend/
 │   ├── services/               # Business logic (routines, AI orchestration, MCP client)
 │   ├── ai/
 │   │   ├── rag/                # Chunking, embedding, retrieval logic
-│   │   ├── functions/          # Function Calling handlers (createRoutine, saveFavorite, ...)
+│   │   ├── functions/          # Function Calling handlers (createRoutine, createShoppingList, ...)
 │   │   └── mcp/                 # MCP client integrations (weather, calendar, maps)
 │   ├── routes/                 # Express route definitions
 │   ├── middlewares/            # Auth, validation, error handling, rate limiting
@@ -1374,16 +1317,13 @@ The following capabilities are explicitly out of scope for the current release (
 | FR-11 | Routine generation | The system shall generate a morning or night routine based on the user's profile via AI Function Calling | Must |
 | FR-12 | Routine management | The system shall allow a user to save, update, and delete routines, with confirmation required for deletion | Must |
 | FR-13 | Shopping list management | The system shall allow creation and modification of shopping lists, including via the AI agent | Should |
-| FR-14 | Favorite products | The system shall allow a user to save and remove favorite products | Should |
-| FR-15 | Favorite routines | The system shall allow a user to save and remove favorite routines | Should |
-| FR-16 | Outfit suggestions | The system shall generate outfit suggestions based on occasion, weather, and style preference | Should |
-| FR-17 | Makeup recommendations | The system shall generate makeup recommendations based on skin type and occasion | Should |
-| FR-18 | Product search | The system shall allow keyword, category, and ingredient-based product search | Must |
-| FR-19 | Weather-based advice | The system shall retrieve current weather via MCP and incorporate it into relevant recommendations | Should |
-| FR-20 | Notifications | The system shall deliver routine reminders and relevant alerts to the user | Should |
-| FR-21 | Settings management | The system shall allow the user to update profile data, language, theme, and notification preferences | Must |
-| FR-22 | AI domain restriction | The system shall cause the AI agent to decline requests outside the beauty/personal-care domain (Section 5.4) | Must |
-| FR-23 | Sensitive action confirmation | The system shall require explicit user confirmation before the AI agent executes a destructive action | Must |
+| FR-14 | Outfit suggestions | The system shall generate outfit suggestions based on occasion, weather, and style preference | Should |
+| FR-15 | Makeup recommendations | The system shall generate makeup recommendations based on skin type and occasion | Should |
+| FR-16 | Product search | The system shall allow keyword, category, and ingredient-based product search | Must |
+| FR-17 | Weather-based advice | The system shall retrieve current weather via MCP and incorporate it into relevant recommendations | Should |
+| FR-18 | Settings management | The system shall allow the user to update profile data, language, and theme | Must |
+| FR-19 | AI domain restriction | The system shall cause the AI agent to decline requests outside the beauty/personal-care domain (Section 5.4) | Must |
+| FR-20 | Sensitive action confirmation | The system shall require explicit user confirmation before the AI agent executes a destructive action | Must |
 
 ---
 
@@ -1401,8 +1341,7 @@ The following capabilities are explicitly out of scope for the current release (
 | NFR-08 | Portability | The mobile client shall run on both iOS and Android from a single Expo codebase |
 | NFR-09 | Localization | The application shall support both English and French user interface languages |
 | NFR-10 | Reliability | The AI Function Calling layer shall validate all function arguments server-side and fail safely (Section 7.4) rather than executing malformed calls |
-| NFR-11 | Data Integrity | All AI-initiated mutating actions shall be recorded in AuditLogs (Section 9) |
-| NFR-12 | Observability | The backend shall log errors and key AI/function-call events in a structured, searchable format (Section 11.7) |
+| NFR-11 | Observability | The backend shall log errors and key AI/function-call events in a structured, searchable format (Section 11.7) |
 
 ---
 
@@ -1466,10 +1405,9 @@ The following capabilities are explicitly out of scope for the current release (
 - Given a user requests a night routine, when the assistant processes the request, then `createRoutine()` is called with arguments consistent with the user's skin profile and a routine is persisted.
 - Given a user asks to delete a routine, when the assistant identifies the target routine, then it requests explicit confirmation before calling `deleteRoutine()`.
 
-### 25.5 Shopping Lists & Favorites
+### 25.5 Shopping Lists
 
 - Given the assistant recommends products during a conversation, when the user asks to add them to a list, then `createShoppingList()` persists those items under the user's account.
-- Given a user favorites a product or routine, when they revisit the Favorites screen, then the item appears without needing to be re-searched or regenerated.
 
 ### 25.6 Security
 
@@ -1532,10 +1470,7 @@ The following capabilities are explicitly out of scope for the current release (
 | PUT | `/routines/:id` | Update a routine |
 | DELETE | `/routines/:id` | Delete a routine (requires confirmation at the AI/UX layer) |
 | POST | `/shopping-lists` | Create or update a shopping list |
-| POST | `/favorites` | Save a favorite product or routine |
-| DELETE | `/favorites/:id` | Remove a favorite |
 | GET | `/products` | Search the product catalog |
-| GET | `/notifications` | Retrieve notifications |
 
 ### Appendix B — Representative Database Schema (DDL Excerpt)
 
